@@ -1,0 +1,41 @@
+{
+  "name": "aetherdoc-studio",
+  "version": "1.0.0",
+  "description": "Universal AI & Local Document Intelligence, Interactive Bounding-Box Verification Studio, Multi-Cloud Object Storage & Supabase Sync",
+  "author": "keshav647 <keshavbudhiraja4321@gmail.com>",
+  "contributors": [
+    "keshav647 <keshavbudhiraja4321@gmail.com>"
+  ],
+  "private": false,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@gsap/react": "^2.1.2",
+    "@supabase/supabase-js": "^2.47.10",
+    "canvas-confetti": "^1.9.3",
+    "clsx": "^2.1.1",
+    "framer-motion": "^11.15.0",
+    "gsap": "^3.15.0",
+    "lucide-react": "^0.468.0",
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^2.5.5",
+    "unpdf": "^1.7.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/node": "^20.17.10",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.1",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16",
+    "typescript": "^5.6.3"
+  }
+}
