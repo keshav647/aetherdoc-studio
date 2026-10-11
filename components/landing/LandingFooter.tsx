@@ -14,12 +14,16 @@ export function LandingFooter() {
   return (
     <footer className="border-t border-white/[0.06] bg-[#04060A]/45 backdrop-blur-md py-10 px-6 sm:px-12 text-xs text-slate-500">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="flex items-center gap-2">
-          <span className="text-sky-400 font-serif text-sm">◈</span>
-          <span className="font-semibold text-slate-300 font-sans">AetherDoc Enterprise</span>
+        <div className="flex items-center gap-2.5">
+          <img
+            src="/logo.png"
+            alt="AetherDoc Studio Logo"
+            className="h-6 w-6 rounded-md object-cover border border-white/[0.12]"
+          />
+          <span className="font-semibold text-slate-300 font-sans">AetherDoc Studio</span>
           <span className="text-slate-600">•</span>
           <span className="font-mono text-[11px] text-slate-500">
-            Document Intelligence & Audit Engine
+            Document Intelligence &amp; Audit Engine
           </span>
         </div>
 

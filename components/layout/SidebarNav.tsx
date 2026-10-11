@@ -124,9 +124,11 @@ export function SidebarNav({
           className="group cursor-pointer flex items-center justify-between px-2 py-3 border-b border-white/[0.06]"
         >
           <div className="flex items-center gap-2.5">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/[0.04] border border-white/[0.1] text-sky-400 font-serif text-base font-bold group-hover:border-sky-400/50 transition-colors">
-              ◈
-            </span>
+            <img
+              src="/logo.png"
+              alt="AetherDoc Studio Logo"
+              className="h-8 w-8 rounded-lg object-cover border border-white/[0.12] shadow-[0_0_14px_rgba(56,189,248,0.22)] group-hover:border-sky-400/60 transition-all"
+            />
             <div>
               <h1 className="text-sm font-semibold tracking-tight text-white flex items-center gap-1.5">
                 AetherDoc{' '}

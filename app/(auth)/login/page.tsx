@@ -28,14 +28,18 @@ export default function LoginPage() {
       <div className="relative w-full max-w-md rounded-3xl border border-white/[0.08] bg-[#05070B] p-8 shadow-2xl backdrop-blur-2xl">
         {/* Logo */}
         <div className="flex flex-col items-center text-center mb-8">
-          <Link href="/" className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.04] border border-white/[0.1] text-sky-400 font-serif text-2xl font-bold mb-4 hover:border-sky-400/40 transition-colors">
-            Ω
+          <Link href="/" className="mb-4 group">
+            <img
+              src="/logo.png"
+              alt="AetherDoc Studio Logo"
+              className="h-14 w-14 rounded-2xl object-cover border border-white/[0.14] shadow-[0_0_24px_rgba(56,189,248,0.28)] group-hover:border-sky-400/60 transition-all"
+            />
           </Link>
           <h1 className="text-xl font-semibold tracking-tight text-white flex items-center gap-2">
-            Cortexa <span className="text-sky-300 font-mono text-[10px] uppercase px-1.5 py-0.5 rounded bg-sky-500/10 border border-sky-500/20">ENTERPRISE</span>
+            AetherDoc <span className="text-sky-300 font-mono text-[10px] uppercase px-1.5 py-0.5 rounded bg-sky-500/10 border border-sky-500/20">STUDIO</span>
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Autonomous Signal Mesh & Sovereign Audit Console
+            Universal Document Intelligence &amp; Verification Studio
           </p>
         </div>
 

@@ -7,6 +7,11 @@ export const metadata: Metadata = {
   title: 'AetherDoc | Autonomous Document Intelligence & Signal Reconciliation',
   description:
     'The layer between raw enterprise records and real decisions — every invoice, contract, and audit trail reconciled into one graph. Hard multi-tenant RLS and precision human-in-the-loop verification.',
+  icons: {
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
+  },
 };
 
 export default function RootLayout({

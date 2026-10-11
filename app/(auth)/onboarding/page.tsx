@@ -21,11 +21,13 @@ export default function OnboardingPage() {
     <div className="min-h-screen flex items-center justify-center p-6 bg-obsidian-950 relative overflow-hidden">
       <div className="relative w-full max-w-xl rounded-2xl border border-white/10 bg-obsidian-900/90 p-8 shadow-2xl backdrop-blur-2xl">
         <div className="flex items-center gap-3 mb-6">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white font-bold">
-            <Shield className="h-5 w-5" />
-          </div>
+          <img
+            src="/logo.png"
+            alt="AetherDoc Studio Logo"
+            className="h-10 w-10 rounded-xl object-cover border border-white/[0.14] shadow-[0_0_16px_rgba(56,189,248,0.22)]"
+          />
           <div>
-            <h1 className="text-base font-bold text-white">DocuLens Enterprise Onboarding</h1>
+            <h1 className="text-base font-bold text-white">AetherDoc Studio Onboarding</h1>
             <p className="text-xs text-slate-400">Step {step} of 3</p>
           </div>
         </div>

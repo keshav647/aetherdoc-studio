@@ -2,7 +2,9 @@
 
 <div align="center">
 
-**Enterprise-Grade Multi-Format Document Extraction, Interactive Bounding-Box Auditing, Multi-Cloud Object Storage Ingestion, and Bi-Directional Supabase Sync**
+<img src="public/logo.png" alt="AetherDoc Studio Logo" width="112" height="112" style="border-radius: 22px;" />
+
+### **Enterprise-Grade Multi-Format Document Extraction, Interactive Bounding-Box Auditing, Multi-Cloud Object Storage Ingestion, and Bi-Directional Supabase Sync**
 
 [![Next.js 15](https://img.shields.io/badge/Next.js-15.1-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![React 19](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
