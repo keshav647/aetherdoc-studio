@@ -19,6 +19,8 @@ import {
   ArrowUpFromLine,
   Eye,
   EyeOff,
+  Trash2,
+  HardDrive,
 } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -32,6 +34,9 @@ export default function SettingsPage() {
     hideDemoSamples,
     toggleHideDemoSamples,
     restoreDemoSamples,
+    clearUploadedDocumentsMemory,
+    clearAllWebsiteMemory,
+    memoryStats,
     resetWorkspace,
     documents,
     fieldsByDoc,
@@ -355,7 +360,115 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Section 4: Demo Sample Visibility & Workspace Export */}
+      {/* Section 4: Website Memory & Browser Storage Manager */}
+      <div className="relative rounded-2xl border border-rose-500/30 bg-[#0B0F19]/95 p-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] pb-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/12 border border-rose-500/30 text-rose-400">
+              <HardDrive className="h-5 w-5" />
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold text-white">
+                Website Memory &amp; Browser Storage Manager
+              </h2>
+              <p className="text-xs text-slate-400">
+                Inspect live browser memory usage and clear uploaded documents, cached extractions, localStorage, sessionStorage, and AI model caches directly.
+              </p>
+            </div>
+          </div>
+
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-400/30 bg-rose-500/10 px-3 py-1 text-xs font-mono font-semibold text-rose-300 tabular-nums">
+            {memoryStats.formattedSize} Used
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-3">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">
+              Memory Footprint
+            </span>
+            <span className="text-base font-mono font-semibold text-white tabular-nums mt-0.5 block">
+              {memoryStats.formattedSize}
+            </span>
+          </div>
+          <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-3">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">
+              Uploaded Docs
+            </span>
+            <span className="text-base font-mono font-semibold text-sky-300 tabular-nums mt-0.5 block">
+              {memoryStats.uploadedDocsCount}
+            </span>
+          </div>
+          <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-3">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">
+              Cached Fields
+            </span>
+            <span className="text-base font-mono font-semibold text-emerald-300 tabular-nums mt-0.5 block">
+              {memoryStats.totalFieldsCount}
+            </span>
+          </div>
+          <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-3">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">
+              Search Chunks
+            </span>
+            <span className="text-base font-mono font-semibold text-amber-300 tabular-nums mt-0.5 block">
+              {memoryStats.totalChunksCount}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2.5 pt-1">
+          <button
+            type="button"
+            onClick={() => {
+              clearUploadedDocumentsMemory();
+              setSavedSuccess(
+                'Cleared all uploaded documents, extracted fields, and search chunks from memory!'
+              );
+              setTimeout(() => setSavedSuccess(null), 3500);
+            }}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-white/[0.1] bg-white/[0.04] px-3.5 py-2 text-xs font-medium text-slate-200 hover:border-rose-400/40 hover:bg-rose-500/10 hover:text-white transition-colors"
+          >
+            <Trash2 className="h-3.5 w-3.5 text-rose-400" />
+            <span>Clear Uploaded Documents ({memoryStats.uploadedDocsCount})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              clearAllWebsiteMemory({ keepCredentials: true, keepDemos: false });
+              setSavedSuccess(
+                'All website memory, cached documents, localStorage, sessionStorage, and AI model caches cleared (API keys kept)!'
+              );
+              setTimeout(() => setSavedSuccess(null), 3500);
+            }}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-rose-500/40 bg-rose-500/15 px-3.5 py-2 text-xs font-semibold text-rose-300 hover:bg-rose-500/25 hover:text-white transition-colors"
+          >
+            <Trash2 className="h-3.5 w-3.5 text-rose-400" />
+            <span>Clear All Website Memory (Keep Keys)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              clearAllWebsiteMemory({ keepCredentials: false, keepDemos: false });
+              setSupabaseUrl('');
+              setSupabaseAnonKey('');
+              setAiKey('');
+              setSavedSuccess(
+                'Full factory wipe complete: all website memory, cached documents, and saved credentials cleared!'
+              );
+              setTimeout(() => setSavedSuccess(null), 3500);
+            }}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-rose-500/50 bg-rose-600/20 px-3.5 py-2 text-xs font-semibold text-rose-200 hover:bg-rose-600/35 hover:text-white transition-colors"
+          >
+            <RotateCcw className="h-3.5 w-3.5 text-rose-300" />
+            <span>Full Factory Wipe (Memory + Keys)</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Section 5: Demo Sample Visibility & Workspace Export */}
       <div className="relative rounded-2xl border border-white/[0.08] bg-[#0B0F19]/92 p-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">

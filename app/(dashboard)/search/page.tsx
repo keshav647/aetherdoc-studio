@@ -12,6 +12,7 @@ import {
   BookOpen,
   Crosshair,
   UploadCloud,
+  Trash2,
 } from 'lucide-react';
 
 const SUGGESTED_QUERIES = [
@@ -24,7 +25,7 @@ const SUGGESTED_QUERIES = [
 
 export default function HybridSearchPage() {
   const router = useRouter();
-  const { searchHybrid, documents, fieldsByDoc, chunks } = useAppStore();
+  const { searchHybrid, documents, fieldsByDoc, chunks, deleteDocument } = useAppStore();
 
   const [query, setQuery] = useState('NVIDIA H200 SXM');
   const [activeQuery, setActiveQuery] = useState('NVIDIA H200 SXM');
@@ -205,7 +206,21 @@ export default function HybridSearchPage() {
                       <p className="text-[11px] text-slate-400">{doc.vendor_name}</p>
                     </div>
                   </div>
-                  <ArrowRight className="h-4 w-4 text-slate-400" />
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteDocument(doc.id);
+                      }}
+                      className="inline-flex items-center gap-1 rounded-lg border border-rose-500/30 bg-rose-500/10 px-2 py-1 text-[10px] font-mono text-rose-300 hover:bg-rose-500/20 hover:text-white transition-colors"
+                      title={`Delete ${doc.file_name}`}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                      <span>Delete</span>
+                    </button>
+                    <ArrowRight className="h-4 w-4 text-slate-400" />
+                  </div>
                 </div>
               ))}
             </div>

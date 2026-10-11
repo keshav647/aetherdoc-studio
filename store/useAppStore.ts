@@ -55,7 +55,25 @@ export interface AppState {
   pendingFileConfirmation: PendingFileConfirmation | null;
 }
 
-const STORAGE_KEY_STATE = 'aetherdoc_enterprise_state_v5';
+export interface MemoryUsageStats {
+  bytesUsed: number;
+  formattedSize: string;
+  uploadedDocsCount: number;
+  demoDocsCount: number;
+  totalDocsCount: number;
+  totalFieldsCount: number;
+  uploadedFieldsCount: number;
+  totalChunksCount: number;
+}
+
+const STORAGE_KEY_STATE = 'aetherdoc_enterprise_state_v6';
+const LEGACY_STORAGE_KEYS = [
+  'aetherdoc_enterprise_state_v1',
+  'aetherdoc_enterprise_state_v2',
+  'aetherdoc_enterprise_state_v3',
+  'aetherdoc_enterprise_state_v4',
+  'aetherdoc_enterprise_state_v5',
+];
 
 const DEFAULT_THRESHOLDS: ThresholdSettings = {
   highConfidence: 0.9,
@@ -121,11 +139,25 @@ class AppStoreManager {
     if (this.hydrated || typeof window === 'undefined') return;
     this.hydrated = true;
     try {
+      // Automatically purge all legacy v1..v5 state keys & stale session cache
+      for (const legacyKey of LEGACY_STORAGE_KEYS) {
+        window.localStorage.removeItem(legacyKey);
+      }
+      for (let i = window.localStorage.length - 1; i >= 0; i--) {
+        const key = window.localStorage.key(i);
+        if (
+          key &&
+          key !== STORAGE_KEY_STATE &&
+          (key.startsWith('aetherdoc_') || key.startsWith('doculens_'))
+        ) {
+          window.localStorage.removeItem(key);
+        }
+      }
+
       const raw = window.localStorage.getItem(STORAGE_KEY_STATE);
       if (raw) {
         const parsed = JSON.parse(raw) as Partial<AppState>;
         const mergedFields: Record<string, ExtractedField[]> = {
-          ...MOCK_FIELDS,
           ...(parsed.fieldsByDoc || {}),
         };
 
@@ -160,6 +192,9 @@ class AppStoreManager {
 
         for (const doc of parsed.documents || MOCK_DOCUMENTS) {
           if (doc.isDemo) {
+            if (!mergedFields[doc.id] && MOCK_FIELDS[doc.id]) {
+              mergedFields[doc.id] = MOCK_FIELDS[doc.id];
+            }
             sanitizedDocs.push(doc);
             continue;
           }
@@ -796,13 +831,42 @@ class AppStoreManager {
   };
 
   public deleteDocument = (documentId: string) => {
+    const targetDoc = this.state.documents.find((d) => d.id === documentId);
+    if (typeof window !== 'undefined' && targetDoc?.file_url?.startsWith('blob:')) {
+      try {
+        URL.revokeObjectURL(targetDoc.file_url);
+      } catch {
+        // Ignore revoke error
+      }
+    }
+
+    const { supabaseUrl, supabaseAnonKey } = this.state.byokConfig;
+    if (supabaseUrl?.trim() && supabaseAnonKey?.trim()) {
+      const cleanUrl = supabaseUrl.trim().replace(/\/$/, '');
+      const headers = {
+        apikey: supabaseAnonKey.trim(),
+        Authorization: `Bearer ${supabaseAnonKey.trim()}`,
+      };
+      fetch(
+        `${cleanUrl}/rest/v1/extracted_fields?document_id=eq.${encodeURIComponent(documentId)}`,
+        { method: 'DELETE', headers }
+      ).catch(() => {});
+      fetch(`${cleanUrl}/rest/v1/documents?id=eq.${encodeURIComponent(documentId)}`, {
+        method: 'DELETE',
+        headers,
+      }).catch(() => {});
+    }
+
     this.setState((prev) => {
       const nextFields = { ...prev.fieldsByDoc };
+      const nextLogs = { ...prev.logsByDoc };
       delete nextFields[documentId];
+      delete nextLogs[documentId];
       return {
         ...prev,
         documents: prev.documents.filter((d) => d.id !== documentId),
         fieldsByDoc: nextFields,
+        logsByDoc: nextLogs,
         chunks: prev.chunks.filter((c) => c.document_id !== documentId),
       };
     });
@@ -1374,6 +1438,177 @@ Audit Opinion: Unqualified / Clean GAAP Compliance`,
     }
   };
 
+  public getMemoryUsageStats = (sourceState: AppState = this.state): MemoryUsageStats => {
+    const uploadedDocs = sourceState.documents.filter((d) => !d.isDemo);
+    const demoDocs = sourceState.documents.filter((d) => d.isDemo);
+    const totalFieldsCount = Object.values(sourceState.fieldsByDoc).reduce(
+      (acc, list) => acc + list.length,
+      0
+    );
+    const uploadedFieldsCount = uploadedDocs.reduce(
+      (acc, d) => acc + (sourceState.fieldsByDoc[d.id]?.length || 0),
+      0
+    );
+    const totalChunksCount = sourceState.chunks.length;
+
+    let bytesUsed = 0;
+    if (sourceState.documents.length > 0 || totalFieldsCount > 0) {
+      try {
+        const serialized = JSON.stringify({
+          documents: sourceState.documents,
+          fieldsByDoc: sourceState.fieldsByDoc,
+          logsByDoc: sourceState.logsByDoc,
+          chunks: sourceState.chunks,
+        });
+        bytesUsed = serialized.length;
+      } catch {
+        bytesUsed = 0;
+      }
+    }
+
+    const formattedSize =
+      bytesUsed === 0
+        ? '0 KB'
+        : bytesUsed < 1024
+        ? `${bytesUsed} B`
+        : bytesUsed < 1024 * 1024
+        ? `${(bytesUsed / 1024).toFixed(1)} KB`
+        : `${(bytesUsed / (1024 * 1024)).toFixed(2)} MB`;
+
+    return {
+      bytesUsed,
+      formattedSize,
+      uploadedDocsCount: uploadedDocs.length,
+      demoDocsCount: demoDocs.length,
+      totalDocsCount: sourceState.documents.length,
+      totalFieldsCount,
+      uploadedFieldsCount,
+      totalChunksCount,
+    };
+  };
+
+  public clearUploadedDocumentsMemory = () => {
+    const uploadedDocs = this.state.documents.filter((d) => !d.isDemo);
+    if (typeof window !== 'undefined') {
+      for (const doc of uploadedDocs) {
+        if (doc.file_url?.startsWith('blob:')) {
+          try {
+            URL.revokeObjectURL(doc.file_url);
+          } catch {
+            // Ignore revoke error
+          }
+        }
+      }
+    }
+
+    const { supabaseUrl, supabaseAnonKey } = this.state.byokConfig;
+    if (supabaseUrl?.trim() && supabaseAnonKey?.trim() && uploadedDocs.length > 0) {
+      const cleanUrl = supabaseUrl.trim().replace(/\/$/, '');
+      const headers = {
+        apikey: supabaseAnonKey.trim(),
+        Authorization: `Bearer ${supabaseAnonKey.trim()}`,
+      };
+      for (const doc of uploadedDocs) {
+        fetch(
+          `${cleanUrl}/rest/v1/extracted_fields?document_id=eq.${encodeURIComponent(doc.id)}`,
+          { method: 'DELETE', headers }
+        ).catch(() => {});
+        fetch(`${cleanUrl}/rest/v1/documents?id=eq.${encodeURIComponent(doc.id)}`, {
+          method: 'DELETE',
+          headers,
+        }).catch(() => {});
+      }
+    }
+
+    this.setState((prev) => {
+      const demoDocs = prev.documents.filter((d) => d.isDemo);
+      const demoDocIds = new Set(demoDocs.map((d) => d.id));
+
+      const nextFields: Record<string, ExtractedField[]> = {};
+      const nextLogs: Record<string, AuditLog[]> = {};
+
+      for (const id of demoDocIds) {
+        if (prev.fieldsByDoc[id]) nextFields[id] = prev.fieldsByDoc[id];
+        if (prev.logsByDoc[id]) nextLogs[id] = prev.logsByDoc[id];
+      }
+
+      return {
+        ...prev,
+        documents: demoDocs,
+        fieldsByDoc: nextFields,
+        logsByDoc: nextLogs,
+        chunks: prev.chunks.filter((c) => demoDocIds.has(c.document_id)),
+      };
+    });
+  };
+
+  public clearAllWebsiteMemory = (options?: {
+    keepCredentials?: boolean;
+    keepDemos?: boolean;
+  }) => {
+    const keepCredentials = options?.keepCredentials ?? true;
+    const keepDemos = options?.keepDemos ?? true;
+
+    if (typeof window !== 'undefined') {
+      for (const doc of this.state.documents) {
+        if (doc.file_url?.startsWith('blob:')) {
+          try {
+            URL.revokeObjectURL(doc.file_url);
+          } catch {
+            // Ignore revoke error
+          }
+        }
+      }
+
+      try {
+        window.localStorage.clear();
+      } catch {
+        // Ignore storage clear error
+      }
+      try {
+        window.sessionStorage.clear();
+      } catch {
+        // Ignore session storage clear error
+      }
+      if ('caches' in window) {
+        window.caches
+          .keys()
+          .then((names) => Promise.all(names.map((n) => window.caches.delete(n))))
+          .catch(() => {});
+      }
+
+      fetch('/api/gemini', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'clear_cache' }),
+      }).catch(() => {});
+    }
+
+    const preservedByok = keepCredentials ? this.state.byokConfig : DEFAULT_BYOK;
+    const preservedThresholds = keepCredentials
+      ? this.state.thresholds
+      : DEFAULT_THRESHOLDS;
+
+    this.state = {
+      documents: keepDemos ? MOCK_DOCUMENTS : [],
+      fieldsByDoc: keepDemos ? MOCK_FIELDS : {},
+      logsByDoc: keepDemos ? MOCK_AUDIT_LOGS : {},
+      chunks: keepDemos ? MOCK_CHUNKS : [],
+      tenants: MOCK_TENANTS,
+      activeTenantId: MOCK_TENANTS[0].id,
+      user: MOCK_USER,
+      thresholds: preservedThresholds,
+      byokConfig: preservedByok,
+      hideDemoSamples: !keepDemos,
+      byokPromptFileName: null,
+      isCloudStorageModalOpen: false,
+      pendingFileConfirmation: null,
+    };
+
+    this.persist();
+    this.listeners.forEach((l) => l());
+  };
+
   public resetWorkspace = () => {
     if (typeof window !== 'undefined') {
       window.localStorage.removeItem(STORAGE_KEY_STATE);
@@ -1455,6 +1690,7 @@ export function useAppStore() {
     documents: appStore.getFilteredDocuments(state),
     allDocuments: state.documents,
     telemetry: appStore.getTelemetry(state),
+    memoryStats: appStore.getMemoryUsageStats(state),
     activeTenant:
       state.tenants.find((t) => t.id === state.activeTenantId) || state.tenants[0],
     updateField: appStore.updateField,
@@ -1467,6 +1703,8 @@ export function useAppStore() {
     toggleHideDemoSamples: appStore.toggleHideDemoSamples,
     clearDemoSamples: appStore.clearDemoSamples,
     restoreDemoSamples: appStore.restoreDemoSamples,
+    clearUploadedDocumentsMemory: appStore.clearUploadedDocumentsMemory,
+    clearAllWebsiteMemory: appStore.clearAllWebsiteMemory,
     switchTenant: appStore.switchTenant,
     updateThresholds: appStore.updateThresholds,
     updateUserProfile: appStore.updateUserProfile,

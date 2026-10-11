@@ -20,6 +20,7 @@ import {
   Sparkles,
   Loader2,
   Cpu,
+  Trash2,
 } from 'lucide-react';
 
 interface StudioHeaderProps {
@@ -45,6 +46,7 @@ export function StudioHeader({
     byokConfig,
     saveByokConfig,
     replaceDocumentExtraction,
+    deleteDocument,
     promptByokForUnsupportedFile,
     requestFileConfirmation,
   } = useAppStore();
@@ -311,6 +313,24 @@ export function StudioHeader({
         >
           <Download className="h-3.5 w-3.5 text-sky-400" />
           <span className="hidden xl:inline">JSON</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            const remaining = allDocuments.filter((d) => d.id !== document.id);
+            deleteDocument(document.id);
+            if (remaining.length > 0) {
+              router.push(`/documents/${remaining[0].id}`);
+            } else {
+              router.push('/documents');
+            }
+          }}
+          className="inline-flex items-center gap-1.5 rounded-xl border border-rose-500/35 bg-rose-500/10 px-2.5 py-1.5 text-xs font-medium text-rose-300 hover:bg-rose-500/20 hover:text-white transition-colors"
+          title={`Delete ${document.file_name}`}
+        >
+          <Trash2 className="h-3.5 w-3.5 text-rose-400" />
+          <span>Delete</span>
         </button>
 
         <button

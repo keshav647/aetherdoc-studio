@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, LayoutGroup } from 'framer-motion';
 import { useAppStore } from '@/store/useAppStore';
@@ -15,6 +15,8 @@ import {
   ChevronDown,
   UserCheck,
   Cloud,
+  Trash2,
+  CheckCircle2,
 } from 'lucide-react';
 import { SupabaseLogo } from '@/components/common/SupabaseSyncModal';
 import { CLOUD_PROVIDERS } from '@/components/common/CloudStorageModal';
@@ -42,7 +44,19 @@ export function SidebarNav({
     updateUserProfile,
     byokConfig,
     setCloudStorageModalOpen,
+    memoryStats,
+    clearUploadedDocumentsMemory,
+    clearAllWebsiteMemory,
   } = useAppStore();
+
+  const [sidebarMemoryCleared, setSidebarMemoryCleared] = useState(false);
+
+  const handleSidebarClearMemory = () => {
+    clearUploadedDocumentsMemory();
+    clearAllWebsiteMemory({ keepCredentials: true, keepDemos: true });
+    setSidebarMemoryCleared(true);
+    setTimeout(() => setSidebarMemoryCleared(false), 2600);
+  };
 
   const visibleDocuments = hideDemoSamples
     ? documents.filter((d) => !d.isDemo)
@@ -293,6 +307,30 @@ export function SidebarNav({
               }`}
             />
             {detectedProviderLabel}
+          </span>
+        </button>
+
+        {/* Clear Website Memory & Cached Storage Button */}
+        <button
+          type="button"
+          onClick={handleSidebarClearMemory}
+          className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-xs font-medium transition-colors ${
+            sidebarMemoryCleared
+              ? 'border-emerald-400/35 bg-emerald-500/12 text-emerald-300'
+              : 'border-rose-500/25 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 hover:border-rose-400/40'
+          }`}
+          title="Clear uploaded documents, extracted fields, and browser memory storage"
+        >
+          <span className="flex items-center gap-2">
+            {sidebarMemoryCleared ? (
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+            ) : (
+              <Trash2 className="h-3.5 w-3.5 text-rose-400" />
+            )}
+            <span>{sidebarMemoryCleared ? 'Memory Cleared!' : 'Clear Memory'}</span>
+          </span>
+          <span className="font-mono text-[10px] tabular-nums opacity-85">
+            {memoryStats.formattedSize}
           </span>
         </button>
 

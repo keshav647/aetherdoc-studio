@@ -35,6 +35,9 @@ export default function DocumentsPage() {
     restoreDemoSamples,
     batchVerifyDocument,
     deleteDocument,
+    clearUploadedDocumentsMemory,
+    clearAllWebsiteMemory,
+    memoryStats,
     setCloudStorageModalOpen,
     requestFileConfirmation,
   } = useAppStore();
@@ -157,18 +160,18 @@ export default function DocumentsPage() {
                   Approve
                 </button>
               )}
-              {documents.length > 1 && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    deleteDocument(doc.id);
-                  }}
-                  className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-1 text-slate-500 hover:text-rose-400 hover:bg-white/[0.06] transition-colors"
-                  title="Remove document"
-                >
-                  <Trash2 className="h-3 w-3" />
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteDocument(doc.id);
+                }}
+                className="inline-flex items-center gap-1 rounded-lg border border-rose-500/30 bg-rose-500/10 px-2 py-1 text-[10px] font-mono text-rose-300 hover:bg-rose-500/20 hover:text-white transition-colors"
+                title={`Delete ${doc.file_name}`}
+              >
+                <Trash2 className="h-3 w-3" />
+                <span>Delete</span>
+              </button>
             </div>
 
             <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-300 group-hover:text-white transition-colors">
@@ -202,7 +205,7 @@ export default function DocumentsPage() {
             Documents &amp; Uploads
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Upload your own files for extraction and verification, sync with Supabase, or inspect the 2 minimal demo samples below.
+            Upload your own files for extraction and verification, sync with Supabase, or clear cached browser memory at any time.
           </p>
         </div>
 
@@ -259,8 +262,32 @@ export default function DocumentsPage() {
           />
         </div>
 
-        {/* Status Tabs + Demo Toggle + View Toggle */}
+        {/* Status Tabs + Demo Toggle + Clear Memory + View Toggle */}
         <div className="flex flex-wrap items-center gap-2.5">
+          {memoryStats.uploadedDocsCount > 0 && (
+            <button
+              type="button"
+              onClick={clearUploadedDocumentsMemory}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-1.5 text-xs font-medium text-rose-300 hover:bg-rose-500/20 hover:text-white transition-colors"
+              title="Clear all uploaded documents from browser memory"
+            >
+              <Trash2 className="h-3.5 w-3.5 text-rose-400" />
+              <span>Clear Uploads ({memoryStats.uploadedDocsCount})</span>
+            </button>
+          )}
+
+          {documents.length > 0 && (
+            <button
+              type="button"
+              onClick={() => clearAllWebsiteMemory({ keepCredentials: true, keepDemos: false })}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-rose-400/40 hover:bg-rose-500/10 hover:text-rose-200 transition-colors"
+              title="Wipe all cached documents and browser storage memory"
+            >
+              <Trash2 className="h-3.5 w-3.5 text-rose-400" />
+              <span>Clear Memory ({memoryStats.formattedSize})</span>
+            </button>
+          )}
+
           {totalDemoCount > 0 ? (
             <button
               type="button"
@@ -508,9 +535,23 @@ export default function DocumentsPage() {
                       {formatDate(doc.created_at)}
                     </td>
                     <td className="py-3 text-right">
-                      <span className="inline-flex items-center gap-1 text-sky-400 font-medium">
-                        Review <ArrowRight className="h-3 w-3" />
-                      </span>
+                      <div className="inline-flex items-center gap-2">
+                        <span className="inline-flex items-center gap-1 text-sky-400 font-medium">
+                          Review <ArrowRight className="h-3 w-3" />
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteDocument(doc.id);
+                          }}
+                          className="inline-flex items-center gap-1 rounded-lg border border-rose-500/30 bg-rose-500/10 px-2.5 py-1 text-rose-300 hover:bg-rose-500/20 hover:text-white transition-all text-xs"
+                          title={`Delete ${doc.file_name}`}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                          <span>Delete</span>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );

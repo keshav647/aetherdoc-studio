@@ -13,6 +13,8 @@ import {
   CheckCircle2,
   EyeOff,
   Eye,
+  Trash2,
+  RotateCcw,
 } from 'lucide-react';
 
 interface VerificationQueueTableProps {
@@ -25,7 +27,14 @@ export function VerificationQueueTable({
   onQuickApprove,
 }: VerificationQueueTableProps) {
   const router = useRouter();
-  const { hideDemoSamples, toggleHideDemoSamples } = useAppStore();
+  const {
+    hideDemoSamples,
+    toggleHideDemoSamples,
+    restoreDemoSamples,
+    deleteDocument,
+    clearUploadedDocumentsMemory,
+    clearAllWebsiteMemory,
+  } = useAppStore();
   const [filter, setFilter] = useState<'all' | 'review_required' | 'verified'>('all');
 
   const visibleDocs = hideDemoSamples
@@ -64,7 +73,31 @@ export function VerificationQueueTable({
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
-          {demoCount > 0 && (
+          {userUploadsCount > 0 && (
+            <button
+              type="button"
+              onClick={clearUploadedDocumentsMemory}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-1.5 text-xs font-medium text-rose-300 hover:bg-rose-500/20 hover:text-white transition-colors"
+              title="Remove all uploaded documents from browser memory while keeping settings"
+            >
+              <Trash2 className="h-3.5 w-3.5 text-rose-400" />
+              <span>Clear Uploads ({userUploadsCount})</span>
+            </button>
+          )}
+
+          {documents.length > 0 && (
+            <button
+              type="button"
+              onClick={() => clearAllWebsiteMemory({ keepCredentials: true, keepDemos: false })}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-rose-400/40 hover:bg-rose-500/10 hover:text-rose-200 transition-colors"
+              title="Wipe all cached documents and browser storage memory"
+            >
+              <Trash2 className="h-3.5 w-3.5 text-rose-400" />
+              <span>Clear Memory</span>
+            </button>
+          )}
+
+          {demoCount > 0 ? (
             <button
               type="button"
               onClick={toggleHideDemoSamples}
@@ -81,6 +114,15 @@ export function VerificationQueueTable({
                   <span>Hide Demo Samples</span>
                 </>
               )}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={restoreDemoSamples}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-white/[0.07] hover:text-white transition-colors"
+            >
+              <RotateCcw className="h-3.5 w-3.5 text-sky-400" />
+              <span>Restore Demo Samples</span>
             </button>
           )}
 
@@ -260,6 +302,18 @@ export function VerificationQueueTable({
                         >
                           <span>Review</span>
                           <ArrowRight className="h-3 w-3" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteDocument(doc.id);
+                          }}
+                          className="inline-flex items-center gap-1 rounded-lg border border-rose-500/30 bg-rose-500/10 px-2.5 py-1 text-rose-300 hover:bg-rose-500/20 hover:text-white transition-all text-xs"
+                          title={`Delete ${doc.file_name}`}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                          <span>Delete</span>
                         </button>
                       </div>
                     </td>

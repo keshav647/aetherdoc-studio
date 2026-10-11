@@ -605,7 +605,7 @@ export async function POST(req: NextRequest) {
       base64Data,
       parts: explicitParts,
     } = body as {
-      action: 'verify' | 'extract';
+      action: 'verify' | 'extract' | 'clear_cache';
       apiKey?: string;
       provider?: string;
       prompt?: string;
@@ -613,6 +613,21 @@ export async function POST(req: NextRequest) {
       base64Data?: string;
       parts?: Record<string, unknown>[];
     };
+
+    if (action === 'clear_cache') {
+      verifiedGeminiModelsCache.clear();
+      try {
+        if (fs.existsSync(CACHE_FILE_PATH)) {
+          fs.unlinkSync(CACHE_FILE_PATH);
+        }
+      } catch {
+        // Ignore unlink errors
+      }
+      return NextResponse.json({
+        ok: true,
+        message: 'Server AI model cache cleared.',
+      });
+    }
 
     const apiKey = sanitizeUniversalApiKey(rawKey || '');
     if (!apiKey) {

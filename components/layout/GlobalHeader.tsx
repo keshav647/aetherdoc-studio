@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAppStore } from '@/store/useAppStore';
-import { Search, KeyRound, Upload, Cloud } from 'lucide-react';
+import { Search, KeyRound, Upload, Cloud, Trash2, CheckCircle2 } from 'lucide-react';
 import { SupabaseLogo } from '@/components/common/SupabaseSyncModal';
 import { CLOUD_PROVIDERS } from '@/components/common/CloudStorageModal';
 
@@ -22,7 +22,24 @@ export function GlobalHeader({
 }: GlobalHeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { documents, telemetry, byokConfig, setCloudStorageModalOpen } = useAppStore();
+  const {
+    documents,
+    telemetry,
+    memoryStats,
+    byokConfig,
+    setCloudStorageModalOpen,
+    clearUploadedDocumentsMemory,
+    clearAllWebsiteMemory,
+  } = useAppStore();
+
+  const [memoryClearedBanner, setMemoryClearedBanner] = useState(false);
+
+  const handleQuickClearMemory = () => {
+    clearUploadedDocumentsMemory();
+    clearAllWebsiteMemory({ keepCredentials: true, keepDemos: true });
+    setMemoryClearedBanner(true);
+    setTimeout(() => setMemoryClearedBanner(false), 2600);
+  };
 
   const pendingDocs = documents.filter((d) => d.status !== 'verified');
   const nextPendingDocId = pendingDocs[0]?.id || documents[0]?.id || 'doc-inv-8941';
@@ -59,7 +76,7 @@ export function GlobalHeader({
         </button>
       </div>
 
-      {/* Right: Upload + Cloud Storage (R2/S3/Azure) + Supabase + AI Key + Review Queue */}
+      {/* Right: Upload + Cloud Storage (R2/S3/Azure) + Supabase + AI Key + Clear Memory + Review Queue */}
       <div className="flex items-center gap-2 shrink-0">
         {pathname !== '/dashboard' && (
           <button
@@ -131,6 +148,33 @@ export function GlobalHeader({
               ? 'AI Scan: Google Gemini'
               : `AI Scan: ${byokConfig.detectedProviderName || 'Connected'}`}
           </span>
+        </button>
+
+        {/* Direct 1-Click Clear Website Memory Button */}
+        <button
+          type="button"
+          onClick={handleQuickClearMemory}
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
+            memoryClearedBanner
+              ? 'border-emerald-400/40 bg-emerald-500/15 text-emerald-300'
+              : 'border-rose-500/30 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 hover:border-rose-400/50'
+          }`}
+          title={`Clear browser memory, uploaded documents, and cached storage (${memoryStats.formattedSize} currently in memory)`}
+        >
+          {memoryClearedBanner ? (
+            <>
+              <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
+              <span>Memory Cleared!</span>
+            </>
+          ) : (
+            <>
+              <Trash2 className="h-3.5 w-3.5 shrink-0 text-rose-400" />
+              <span className="hidden lg:inline">Clear Memory</span>
+              <span className="hidden xl:inline font-mono text-[10px] opacity-80">
+                ({memoryStats.formattedSize})
+              </span>
+            </>
+          )}
         </button>
 
         <div
