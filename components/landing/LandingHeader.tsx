@@ -126,9 +126,6 @@ export function LandingHeader() {
                 >
                   AetherDoc
                 </span>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
-                  2.4
-                </span>
               </div>
               <div className="text-[10px] text-zinc-400 mt-0.5 hidden sm:block">
                 3D Signal Hub
