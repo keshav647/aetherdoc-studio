@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "Universal AI & Local Document Intelligence, Interactive Bounding-Box Verification Studio, Multi-Cloud Object Storage & Supabase Sync",
   "author": "keshav647 <keshavbudhiraja4321@gmail.com>",
-  "contributors": [
-    "keshav647 <keshavbudhiraja4321@gmail.com>"
-  ],
   "private": false,
   "scripts": {
     "dev": "next dev",

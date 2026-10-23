@@ -242,4 +242,4 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## License
 
-MIT © [Keshav Budhiraja](https://github.com/keshav647). All rights reserved.
+This project is licensed under the [MIT License](LICENSE).
