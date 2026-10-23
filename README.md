@@ -11,9 +11,19 @@
 [![TypeScript 5.6](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=black)](https://supabase.com/)
-[![Author](https://img.shields.io/badge/Author-keshav647-0EA5E9?style=for-the-badge&logo=github)](https://github.com/keshav647)
+[![Loom Walkthrough](https://img.shields.io/badge/Loom_Walkthrough-1080p_HD-625DF5?style=for-the-badge&logo=loom&logoColor=white)](https://www.loom.com/share/120b706a43a540e492c76709fe7a9b44)
+[![Author](https://img.shields.io/badge/Author-Keshav_Budhiraja-0EA5E9?style=for-the-badge&logo=github)](https://github.com/keshav647)
 
 </div>
+
+---
+
+## 🎬 Architecture Tour & Live Video Walkthrough
+
+> **Watch the full 1080p architecture tour and live product demonstration on Loom:**  
+> [![Watch AetherDoc Studio Architecture & Live Walkthrough on Loom](https://img.shields.io/badge/Watch_Full_Walkthrough-Loom_HD-625DF5?style=for-the-badge&logo=loom&logoColor=white)](https://www.loom.com/share/120b706a43a540e492c76709fe7a9b44)  
+> *Direct Link:* [https://www.loom.com/share/120b706a43a540e492c76709fe7a9b44](https://www.loom.com/share/120b706a43a540e492c76709fe7a9b44)  
+> *For the step-by-step evaluation guide and reviewer checklist, see [Technical Walkthrough & Evaluation Guide](docs/WALKTHROUGH.md).*
 
 ---
 
@@ -32,12 +42,17 @@ Traditional OCR and document extraction tools fail in modern workflows for four 
 
 ## 2. What Problem AetherDoc Studio Solves
 
-**AetherDoc Studio** bridges the gap between **autonomous AI document understanding** and **precision Human-in-the-Loop (HITL) visual verification**:
+**AetherDoc Studio** bridges the gap between **autonomous AI document understanding**, **multi-layer discrepancy & security auditing**, and **precision Human-in-the-Loop (HITL) visual verification**:
 
-* **From Fixed Schemas to Dynamic AI-Driven Categorization**: Instead of forcing every document into rigid accounting buckets, AetherDoc Studio dynamically discovers and assigns context-aware section categories tailored to the actual document—such as *Contact & Identity*, *Education & Academic Background*, *Professional Experience*, and *Technical Skills* for a Resume, or *Line Items*, *Financial Totals*, and *Remittance & Compliance* for an Invoice.
+* **Autonomous Dynamic Categorization Across 11+ Document Archetypes**: Instead of forcing every document into rigid accounting buckets, AetherDoc Studio dynamically discovers and creates context-aware section categories tailored to the actual document (`INVOICE`, `CONTRACT`, `RESUME`, `INCIDENT_REPORT`, `MEDICAL_RECORD`, `RECEIPT`, `TAX_FORM`, `ID_DOCUMENT`, `BANK_STATEMENT`, `PURCHASE_ORDER`, `GENERAL`).
+* **Multi-Layer Discrepancy, Anomaly & Knowledge Verification Engine**: Automatically audits documents in both AI and Local modes for:
+  * **Temporal & Chronological Impossibilities**: Catches invalid calendar dates (e.g., `Feb 30`, `June 31`), reverse timelines (`Due Date` prior to `Issue Date`), and impossible career/education timelines.
+  * **Mathematical & Financial Reconciliation**: Verifies line-item arithmetic (`Qty × Unit Price = Line Total`) and summary equations (`Subtotal + Tax - Discount = Total Due`), flagging exact cent/dollar variances.
+  * **Factual, Domain & World-Knowledge Auditing**: When connected to AI, cross-checks historical dates, incident timelines, geographical facts, scientific claims, and regulatory references, attaching an explicit `discrepancy_note` directly onto the offending field while keeping valid fields verified (`95%–99%`).
+* **11-Vector Adversarial Prompt Injection Sentinel (Works 100% Locally & With AI)**: Built-in security guardrail (`detectAdversarialPromptInjections`) de-obfuscates zero-width characters and scans for instruction hijacking (`Ignore previous instructions`), synthetic evaluator tags (`[System Evaluation Context: ...]`), ATS score manipulation, LLM delimiter tokens (`<|im_start|>`), white-text CSS camouflage, and data exfiltration beacons—completely offline with zero API key required, plus semantic AI reinforcement when a key is connected.
 * **Dual-Engine Architecture (Universal AI Scan + Offline Local Scan)**:
-  * **AI Scan Mode**: Auto-detects any pasted API key (**Google Gemini**, **OpenAI GPT-4o**, **Anthropic Claude**, **Groq LPU**, **OpenRouter**, or **xAI Grok**) to extract structured fields, confidence scores, and page mappings from **any document or image format**.
-  * **Local Engine Mode**: Works 100% key-free using coordinate-sorted **Mozilla PDF.js (`unpdf`)** and native **DOCX XML inflation** to parse `PDF`, `DOCX`, `CSV`, `JSON`, `TXT`, and `MD` files without external API calls.
+  * **AI Scan Mode**: Auto-detects any pasted API key (**Google Gemini**, **OpenAI GPT-4o**, **Anthropic Claude**, **Groq LPU**, **OpenRouter**, or **xAI Grok**) to extract structured fields, confidence scores, discrepancy notes, and page mappings from **any document or image format**.
+  * **Local Engine Mode**: Works 100% key-free using coordinate-sorted **Mozilla PDF.js (`unpdf`)**, native **DOCX XML inflation**, and the **Local Discrepancy & Prompt Injection Sentinel** to parse and audit `PDF`, `DOCX`, `CSV`, `JSON`, `TXT`, and `MD` files without external API calls.
 * **Interactive Bounding-Box Verification Studio**: Renders every document page on an interactive canvas with content-proportional, non-overlapping bounding boxes. Reviewers can **click to inspect**, **edit values inline**, **draw new custom bounding boxes (`D`)**, **delete unwanted boxes (`Delete` / `Backspace`)**, and **approve/flag fields** with an immutable audit trail.
 * **Direct Multi-Cloud Object Storage & Supabase PostgreSQL Integration**: Connect directly to **Cloudflare R2**, **AWS S3**, **Azure Blob Storage**, **Google Cloud Storage**, or **Custom S3 (MinIO / DigitalOcean Spaces)** using built-in **AWS Signature V4** and **Azure SAS** connectors, and synchronize documents bi-directionally with **Supabase PostgreSQL**.
 
@@ -53,17 +68,18 @@ flowchart TB
         SupabasePull["Supabase PostgreSQL Sync\n(Bi-Directional Push & Pull)"]
     end
 
-    subgraph Engine["2. Dual-Engine Extraction & Layout Calibration"]
+    subgraph Engine["2. Dual-Engine Extraction, Security & Discrepancy Audit"]
         PreFlight["Pre-Upload Confirmation & Source Inspector"]
         Router{"Active Extraction Mode"}
-        AIScan["Universal AI Engine (/api/gemini)\nGemini 2.5 Flash • GPT-4o • Claude 3.5 • Groq • OpenRouter • Grok"]
+        AIScan["Universal AI Engine (/api/gemini)\nDynamic Category Discovery & Factual/Math/Date Audit"]
         LocalScan["Coordinate-Sorted Local Engine (/api/extract)\nMozilla PDF.js (unpdf) + Native DOCX XML Parser"]
-        Calibrator["Proportional Layout Calibrator\nSequential Page Mapping & Non-Overlapping BBox Engine"]
+        Sentinel["Discrepancy & Prompt Injection Sentinel\n11-Vector Injection Guardrail • Math & Timeline Validator"]
+        Calibrator["Proportional Layout Calibrator\nTrue Physical Page Mapping & Non-Overlapping BBox Engine"]
     end
 
     subgraph Studio["3. Human-in-the-Loop (HITL) Verification Studio"]
         Canvas["Interactive Multi-Page Document Canvas\nZoom • Pan • Draw Custom Box (D) • Delete Box (Del)"]
-        Ledger["Dynamic Category Field Ledger\nInline Override • Confidence Telemetry • Batch Sign-Off"]
+        Ledger["Dynamic Category Field Ledger\nDiscrepancy Callouts • Inline Override • Batch Sign-Off"]
         Audit["Immutable Audit Trail & Hybrid Search Index"]
     end
 
@@ -73,8 +89,9 @@ flowchart TB
     PreFlight --> Router
     Router -->|"AI Scan (BYOK)"| AIScan
     Router -->|"Local Scan (No Key Required)"| LocalScan
-    AIScan --> Calibrator
-    LocalScan --> Calibrator
+    AIScan --> Sentinel
+    LocalScan --> Sentinel
+    Sentinel --> Calibrator
     Calibrator --> Canvas
     Calibrator --> Ledger
     Canvas <--> Ledger
@@ -104,6 +121,7 @@ Every technology in **AetherDoc Studio** was selected to maximize extraction acc
 | **Mozilla PDF.js (`unpdf`)** | `1.7.0` | Executes serverless coordinate-aware PDF text extraction in `/api/extract`. Groups text tokens by visual `(Y, X)` coordinates (`3.5pt` tolerance) so multi-column layouts, tables, and headers are reconstructed in natural human reading order. |
 | **Native DOCX XML Inflator (`zlib`)** | Node Built-in | Parses `.docx` OpenXML archives directly in memory by locating and inflating `word/document.xml` without heavy external binary dependencies. |
 | **Multi-LLM Universal Gateway (`/api/gemini`)** | Custom REST | Auto-detects API keys by prefix (`AIza...`, `sk-...`, `sk-ant-...`, `gsk_...`, `sk-or-...`, `xai-...`), dynamically queries Google's `/v1beta/models` endpoint to verify enabled Gemini Flash models, and includes automatic truncated-JSON recovery (`recoverTruncatedJson`). |
+| **Discrepancy & Injection Sentinel (`discrepancyDetector.ts`)** | Custom Engine | Performs deterministic local checks for impossible calendar dates, chronological inversions, subtotal/tax/total math mismatches, internal contradictions, and 11 adversarial prompt injection vectors. |
 | **Zero-Dependency AWS Signature V4 Engine (`/api/storage`)** | Node `crypto` | Implements cryptographic `AWS4-HMAC-SHA256` request signing from scratch using Node's native `crypto` module, enabling direct `ListObjectsV2` and `GetObject` calls to **Cloudflare R2**, **AWS S3**, **Google Cloud Storage**, and **MinIO** without bloated SDK bundles. |
 | **Supabase (`@supabase/supabase-js`)** | `2.47.10` | Provides cloud PostgreSQL persistence with Row Level Security (RLS), bi-directional document/field synchronization (`pull`, `push`, `both`), and dual-schema fallback compatibility. |
 
@@ -111,18 +129,22 @@ Every technology in **AetherDoc Studio** was selected to maximize extraction acc
 
 ## 5. Key Features in Detail
 
-### A. Dual-Engine Extraction (AI Scan vs. Local Scan)
+### A. Dual-Engine Extraction, Dynamic Categories & Discrepancy Auditing
 - **Explicit Mode Selector in Studio Header**: Switch between **AI Scan** and **Local Scan** directly from the top toolbar of the Document Verification Studio.
-- **Smart Pre-Flight Validation**: If **AI Scan** is selected without an active API key, the studio immediately opens the **AI Document Intelligence & API Key Setup** modal with a clear prompt rather than silently falling back.
-- **Universal Provider Auto-Detection**: Paste any API key into a single input field—AetherDoc Studio automatically identifies **Google Gemini**, **OpenAI**, **Anthropic Claude**, **Groq Cloud LPU**, **OpenRouter**, or **xAI Grok**, tests the key live, and displays the verified model.
+- **Autonomous Category Discovery**: Dynamically creates 4 to 8 human-readable categories tailored to the document's domain (e.g., *Incident Summary & Classification*, *Chronological Timeline & Location*, *Root Cause & Corrective Actions* for an Incident Report).
+- **Precision Discrepancy Detection Without False-Positive Contamination**:
+  - Valid, accurate fields are scored `0.95–0.99` (`verified` / Emerald Green).
+  - Fields containing math errors, impossible dates, timeline contradictions, or factual inaccuracies are scored `0.15–0.45` (`flagged` / Crimson Red) with an inline **Discrepancy Audit Callout (`discrepancy_note`)** explaining the exact error and expected correction.
+- **11-Vector Prompt Injection Guardrail (Offline + AI)**: Detects hidden instructions, ATS score tampering, jailbreak personas, LLM control tokens, and white-text CSS exploits both locally (without an API key) and via AI.
 
 ### B. Dynamic Multi-Page Layout & Bounding Box Studio
-- **True Page-Count Calibration**: Respects the actual page count of uploaded documents (`1..N` populated pages) and eliminates empty trailing pages.
+- **True Physical Page-Count Calibration**: Strictly respects the physical page count of uploaded documents (`1..N` pages) without artificially splitting single-page documents across extra virtual pages.
 - **Content-Proportional Bounding Boxes**: Calculates vertical box heights proportionally to the text length of each extracted field so boxes never collide or clip multiline paragraphs.
 - **Full CRUD on Bounding Boxes**:
   - **Add Custom Box (`D`)**: Click **Draw Custom Box** (or press `D`) and drag anywhere on the document canvas to create a new custom field with live coordinate binding.
   - **Delete Any Box (`Delete` / `Backspace`)**: Remove any custom or extracted field box directly from the floating bounding-box toolbar on the canvas, the trash icon on any Field Card in the right-hand ledger, or via keyboard shortcut (`Delete` / `Backspace`).
   - **Inline Override & Approval (`A` / `E` / `F`)**: Approve fields (`A`), edit values inline (`E`), flag anomalies (`F`), or batch-verify an entire document in one click.
+- **Instant Memory Wipe & Upload Redirection**: Clicking **Clear Memory** from any screen wipes cached documents and storage state and immediately redirects to the **Upload & Document Dashboard (`/dashboard`)** for a clean workspace start.
 
 ### C. Branded Multi-Cloud Object Storage & Supabase Sync
 - **Official Cloud Brand Themes**: Dedicated, color-calibrated storage connectors for:
@@ -147,7 +169,7 @@ Every technology in **AetherDoc Studio** was selected to maximize extraction acc
 │   │   └── settings/           # Supabase Sync, Universal AI Key & Confidence Thresholds
 │   └── api/
 │       ├── extract/route.ts    # Coordinate-sorted PDF (unpdf) & DOCX server extraction
-│       ├── gemini/route.ts     # Multi-LLM verification, model discovery & JSON extraction
+│       ├── gemini/route.ts     # Multi-LLM verification, dynamic categories & discrepancy audit
 │       ├── storage/route.ts    # AWS SigV4 (R2/S3/GCS/MinIO) & Azure Blob storage proxy
 │       ├── search/route.ts     # Hybrid full-text & field search endpoint
 │       └── export/[id]/route.ts# Audited JSON payload export endpoint
@@ -160,11 +182,13 @@ Every technology in **AetherDoc Studio** was selected to maximize extraction acc
 │                               # BoundingBoxLayer, FieldLedger, FieldCard, AuditDrawer
 ├── lib/
 │   ├── extraction/
-│   │   ├── types.ts            # Core TypeScript interfaces & data contracts
-│   │   ├── providerDetector.ts # API key sanitization & multi-LLM provider auto-detection
-│   │   ├── layoutCalibrator.ts # Content-proportional bounding box & page layout engine
-│   │   ├── localFileParsers.ts # Client/server PDF, DOCX, CSV, JSON, MD, TXT parsers
-│   │   └── universalExtractor.ts # Unified AI + Local extraction orchestrator
+│   │   ├── types.ts               # Core TypeScript interfaces & data contracts
+│   │   ├── providerDetector.ts    # API key sanitization & multi-LLM provider auto-detection
+│   │   ├── discrepancyDetector.ts # Local math, date, contradiction & prompt injection auditor
+│   │   ├── layoutCalibrator.ts    # Content-proportional bounding box & true page layout engine
+│   │   ├── localFileParsers.ts    # Client/server PDF, DOCX, CSV, JSON, MD, TXT parsers
+│   │   ├── prompt-schemas.ts      # Zod validation schemas & structured AI system instructions
+│   │   └── universalExtractor.ts  # Unified AI + Local extraction & 11-vector injection sentinel
 │   ├── storage/
 │   │   └── cloudProviders.ts   # Cloud provider brand tokens, MIME helpers & S3 URL builder
 │   └── supabase/
@@ -208,6 +232,14 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 8. Author & Maintainer
 
-* **Author / Contributor**: **keshav647**
-* **Email**: [keshavbudhiraja4321@gmail.com](mailto:keshavbudhiraja4321@gmail.com)
-* **GitHub**: [@keshav647](https://github.com/keshav647)
+**Keshav Budhiraja**
+* Systems & AI Engineer
+* **GitHub:** [@keshav647](https://github.com/keshav647)
+* **Portfolio:** [keshavbudhiraja.com](https://keshavbudhiraja.com)
+* **Email:** [keshavbudhiraja4321@gmail.com](mailto:keshavbudhiraja4321@gmail.com)
+
+---
+
+## License
+
+MIT © [Keshav Budhiraja](https://github.com/keshav647). All rights reserved.

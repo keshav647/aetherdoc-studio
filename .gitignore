@@ -20,10 +20,12 @@ yarn-error.log*
 
 # Local-Only Project Documentation (Kept Separate from Public GitHub Repo)
 /local-docs/
-/docs/
+/docs/*
+!/docs/WALKTHROUGH.md
 Master.md
 LIQUID_GLASS_DESIGN_SYSTEM_AND_EXECUTION_ROADMAP.md
 git.ignore2.0
+loom video script for aether.md
 
 # Local Workspace Agent & Skill Directories
 /agent/
